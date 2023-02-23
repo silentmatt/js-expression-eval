@@ -88,6 +88,7 @@ export function Parser(options) {
     not: not,
     length: stringOrArrayLength,
     '!': factorial,
+    '#': percent,
     sign: Math.sign || sign
   };
 
@@ -181,6 +182,7 @@ var optionNameMap = {
   '%': 'remainder',
   '^': 'power',
   '!': 'factorial',
+  '#': 'percent',
   '<': 'comparison',
   '>': 'comparison',
   '<=': 'comparison',

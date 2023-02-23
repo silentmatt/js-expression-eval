@@ -1026,4 +1026,40 @@ describe('Operators', function () {
       assertCloseTo(parser.parse('log2 x').toJSFunction('x')(3), 1.584962500721156, delta);
     });
   });
+
+  describe('x#', function () {
+    it('has the correct precedence', function () {
+      assert.strictEqual(parser.parse('2^3#').toString(), '(2 ^ (3#))');
+      assert.strictEqual(parser.parse('-5#').toString(), '(-(5#))');
+      assert.strictEqual(parser.parse('4#^3').toString(), '((4#) ^ 3)');
+      assert.strictEqual(parser.parse('sqrt(4)#').toString(), '((sqrt 4)#)');
+      assert.strictEqual(parser.parse('sqrt 4#').toString(), '(sqrt (4#))');
+      assert.strictEqual(parser.parse('x##').toString(), '((x#)#)');
+    });
+
+    it('returns percentage as a fraction', function () {
+      assert.strictEqual(parser.evaluate('(-10)#'), -0.1);
+      assert.strictEqual(parser.evaluate('(-2)#'), -0.02);
+      assert.strictEqual(parser.evaluate('(-1)#'), -0.01);
+      assert.strictEqual(parser.evaluate('0#'), 0);
+      assert.strictEqual(parser.evaluate('1#'), 0.01);
+      assert.strictEqual(parser.evaluate('2#'), 0.02);
+      assert.strictEqual(parser.evaluate('3#'), 0.03);
+      assert.strictEqual(parser.evaluate('3.65#'), 0.0365);
+      assert.strictEqual(parser.evaluate('4#'), 0.04);
+      assert.strictEqual(parser.evaluate('5#'), 0.05);
+      assert.strictEqual(parser.evaluate('10#'), 0.1);
+      assert.strictEqual(parser.evaluate('20#'), 0.2);
+      assert.strictEqual(parser.evaluate('30#'), 0.3);
+      assert.strictEqual(parser.evaluate('55.55#'), 0.5555);
+      assert.strictEqual(parser.evaluate('90#'), 0.9);
+      assert.strictEqual(parser.evaluate('99#'), 0.99);
+      assert.strictEqual(parser.evaluate('100#'), 1);
+      assert.strictEqual(parser.evaluate('125#'), 1.25);
+      assert.strictEqual(parser.evaluate('150#'), 1.5);
+      assert.strictEqual(parser.evaluate('170#'), 1.7);
+      assert.strictEqual(parser.evaluate('171#'), 1.71);
+      assert.strictEqual(parser.evaluate('200#'), 2);
+    });
+  });
 });

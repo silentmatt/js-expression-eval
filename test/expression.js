@@ -666,6 +666,10 @@ describe('Expression', function () {
       assert.strictEqual(parser.parse('(x - 1)!').toString(), '((x - 1)!)');
     });
 
+    it('(x - 1)#', function () {
+      assert.strictEqual(parser.parse('(x - 1)#').toString(), '((x - 1)#)');
+    });
+
     it('a[0]', function () {
       assert.strictEqual(parser.parse('a[0]').toString(), 'a[0]');
     });
@@ -897,6 +901,15 @@ describe('Expression', function () {
       assert.strictEqual(parser.parse('(x - 1)!').toJSFunction('x')(4), 6);
       assert.strictEqual(parser.parse('(x - 1)!').toJSFunction('x')(5), 24);
       assert.strictEqual(parser.parse('(x - 1)!').toJSFunction('x')(6), 120);
+    });
+
+    it('(x - 1)#', function () {
+      assert.strictEqual(parser.parse('(x - 1)#').toJSFunction('x')(1), 0);
+      assert.strictEqual(parser.parse('(x - 1)#').toJSFunction('x')(2), 0.01);
+      assert.strictEqual(parser.parse('(x - 1)#').toJSFunction('x')(3), 0.02);
+      assert.strictEqual(parser.parse('(x - 1)#').toJSFunction('x')(10), 0.09);
+      assert.strictEqual(parser.parse('(x - 1)#').toJSFunction('x')(11), 0.1);
+      assert.strictEqual(parser.parse('(x - 1)#').toJSFunction('x')(100), 0.99);
     });
 
     it('(f(x) = g(y) = x * y)(a)(b)', function () {

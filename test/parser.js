@@ -165,6 +165,7 @@ describe('Parser', function () {
         assert.throws(function () { parser.parse('"a" | "b"'); }, Error);
         assert.throws(function () { parser.parse('2 = 2'); }, Error);
         assert.throws(function () { parser.parse('2 ! 3'); }, Error);
+        assert.throws(function () { parser.parse('2 # 3'); }, Error);
         assert.throws(function () { parser.parse('1 o 0'); }, Error);
         assert.throws(function () { parser.parse('1 an 2'); }, Error);
         assert.throws(function () { parser.parse('1 a 2'); }, Error);
@@ -333,11 +334,13 @@ describe('Parser', function () {
           operators: {
             add: false,
             sin: false,
+            percent: false,
             remainder: false,
             divide: false
           }
         });
         assert.throws(function () { parser.parse('+1'); }, /\+/);
+        assert.throws(function () { parser.parse('10#'); }, /#/);
         assert.throws(function () { parser.parse('1 + 2'); }, /\+/);
         assert.strictEqual(parser.parse('sin(0)').toString(), 'sin(0)');
         assert.throws(function () { parser.evaluate('sin(0)'); }, /sin/);
@@ -351,12 +354,14 @@ describe('Parser', function () {
             add: true,
             sqrt: true,
             divide: true,
+            percent: true,
             'in': true,
             assignment: true
           }
         });
         assert.strictEqual(parser.evaluate('+(-1)'), -1);
         assert.strictEqual(parser.evaluate('sqrt(16)'), 4);
+        assert.strictEqual(parser.evaluate('50#'), 0.5);
         assert.strictEqual(parser.evaluate('4 / 6'), 2 / 3);
         assert.strictEqual(parser.evaluate('3 in array', { array: [ 1, 2, 3 ] }), true);
         assert.strictEqual(parser.evaluate('x = 4', { x: 2 }), 4);
@@ -426,6 +431,16 @@ describe('Parser', function () {
       });
 
       assert.throws(function () { parser.parse('5!'); }, /!/);
+    });
+
+    it('should allow percent operator to be disabled', function () {
+      var parser = new Parser({
+        operators: {
+          percent: false
+        }
+      });
+
+      assert.throws(function () { parser.parse('5#'); }, /#/);
     });
 
     it('should allow in operator to be enabled', function () {

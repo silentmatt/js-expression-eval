@@ -66,11 +66,15 @@ export default function expressionToString(tokens, toJS) {
           nstack.push('(' + '!' + n1 + ')');
         } else if (f === '!') {
           nstack.push('fac(' + n1 + ')');
+        } else if (f === '#') {
+          nstack.push('percent(' + n1 + ')');
         } else {
           nstack.push(f + '(' + n1 + ')');
         }
       } else if (f === '!') {
         nstack.push('(' + n1 + '!)');
+      } else if (f === '#') {
+        nstack.push('(' + n1 + '#)');
       } else {
         nstack.push('(' + f + ' ' + n1 + ')');
       }
