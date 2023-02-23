@@ -25,7 +25,9 @@
   "scripts": {
     "test": "npm run build && mocha",
     "coverage": "npm run build && nyc --reporter=lcov --reporter=text-summary mocha",
+    "coverage:clover": "nyc report -r clover",
     "lint": "eslint index.js src test rollup.config.js rollup-min.config.js",
+    "lint:report": "eslint index.js src test rollup.config.js rollup-min.config.js --output-file eslint_report.json --format json",
     "watch": "rollup -c rollup.config.js -w",
     "build": "rollup -c rollup.config.js && rollup -c rollup-min.config.js && rollup -c rollup-esm.config.js",
     "prepublish": "npm run build"
