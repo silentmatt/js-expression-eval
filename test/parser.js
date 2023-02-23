@@ -235,7 +235,7 @@ describe('Parser', function () {
         assert.strictEqual(parser.parse('sin;').toString(), '(sin)');
         assert.strictEqual(parser.parse('(sin)').toString(), 'sin');
         assert.strictEqual(parser.parse('sin; (2)^3').toString(), '(sin;(2 ^ 3))');
-        assert.deepStrictEqual(parser.parse('f(sin, sqrt)').evaluate({ f: function (a, b) { return [ a, b ]; }}), [ Math.sin, Math.sqrt ]);
+        assert.deepStrictEqual(parser.parse('f(sin, sqrt)').evaluate({ f: function (a, b) { return [a, b]; } }), [Math.sin, Math.sqrt]);
         assert.strictEqual(parser.parse('sin').evaluate(), Math.sin);
         assert.strictEqual(parser.parse('cos;').evaluate(), Math.cos);
         assert.strictEqual(parser.parse('cos;tan').evaluate(), Math.tan);
@@ -260,31 +260,31 @@ describe('Parser', function () {
       });
 
       it('should parse valid variable names correctly', function () {
-        assert.deepStrictEqual(parser.parse('a').variables(), [ 'a' ]);
-        assert.deepStrictEqual(parser.parse('abc').variables(), [ 'abc' ]);
-        assert.deepStrictEqual(parser.parse('a+b').variables(), [ 'a', 'b' ]);
-        assert.deepStrictEqual(parser.parse('ab+c').variables(), [ 'ab', 'c' ]);
-        assert.deepStrictEqual(parser.parse('a1').variables(), [ 'a1' ]);
-        assert.deepStrictEqual(parser.parse('a_1').variables(), [ 'a_1' ]);
-        assert.deepStrictEqual(parser.parse('a_').variables(), [ 'a_' ]);
-        assert.deepStrictEqual(parser.parse('a_c').variables(), [ 'a_c' ]);
-        assert.deepStrictEqual(parser.parse('A').variables(), [ 'A' ]);
-        assert.deepStrictEqual(parser.parse('ABC').variables(), [ 'ABC' ]);
-        assert.deepStrictEqual(parser.parse('A+B').variables(), [ 'A', 'B' ]);
-        assert.deepStrictEqual(parser.parse('AB+C').variables(), [ 'AB', 'C' ]);
-        assert.deepStrictEqual(parser.parse('A1').variables(), [ 'A1' ]);
-        assert.deepStrictEqual(parser.parse('A_1').variables(), [ 'A_1' ]);
-        assert.deepStrictEqual(parser.parse('A_C').variables(), [ 'A_C' ]);
-        assert.deepStrictEqual(parser.parse('abcdefg/hijklmnop+qrstuvwxyz').variables(), [ 'abcdefg', 'hijklmnop', 'qrstuvwxyz' ]);
-        assert.deepStrictEqual(parser.parse('ABCDEFG/HIJKLMNOP+QRSTUVWXYZ').variables(), [ 'ABCDEFG', 'HIJKLMNOP', 'QRSTUVWXYZ' ]);
-        assert.deepStrictEqual(parser.parse('abc123+def456*ghi789/jkl0').variables(), [ 'abc123', 'def456', 'ghi789', 'jkl0' ]);
-        assert.deepStrictEqual(parser.parse('_').variables(), [ '_' ]);
-        assert.deepStrictEqual(parser.parse('_x').variables(), [ '_x' ]);
-        assert.deepStrictEqual(parser.parse('$x').variables(), [ '$x' ]);
-        assert.deepStrictEqual(parser.parse('$xyz').variables(), [ '$xyz' ]);
-        assert.deepStrictEqual(parser.parse('$a_sdf').variables(), [ '$a_sdf' ]);
-        assert.deepStrictEqual(parser.parse('$xyz_123').variables(), [ '$xyz_123' ]);
-        assert.deepStrictEqual(parser.parse('_xyz_123').variables(), [ '_xyz_123' ]);
+        assert.deepStrictEqual(parser.parse('a').variables(), ['a']);
+        assert.deepStrictEqual(parser.parse('abc').variables(), ['abc']);
+        assert.deepStrictEqual(parser.parse('a+b').variables(), ['a', 'b']);
+        assert.deepStrictEqual(parser.parse('ab+c').variables(), ['ab', 'c']);
+        assert.deepStrictEqual(parser.parse('a1').variables(), ['a1']);
+        assert.deepStrictEqual(parser.parse('a_1').variables(), ['a_1']);
+        assert.deepStrictEqual(parser.parse('a_').variables(), ['a_']);
+        assert.deepStrictEqual(parser.parse('a_c').variables(), ['a_c']);
+        assert.deepStrictEqual(parser.parse('A').variables(), ['A']);
+        assert.deepStrictEqual(parser.parse('ABC').variables(), ['ABC']);
+        assert.deepStrictEqual(parser.parse('A+B').variables(), ['A', 'B']);
+        assert.deepStrictEqual(parser.parse('AB+C').variables(), ['AB', 'C']);
+        assert.deepStrictEqual(parser.parse('A1').variables(), ['A1']);
+        assert.deepStrictEqual(parser.parse('A_1').variables(), ['A_1']);
+        assert.deepStrictEqual(parser.parse('A_C').variables(), ['A_C']);
+        assert.deepStrictEqual(parser.parse('abcdefg/hijklmnop+qrstuvwxyz').variables(), ['abcdefg', 'hijklmnop', 'qrstuvwxyz']);
+        assert.deepStrictEqual(parser.parse('ABCDEFG/HIJKLMNOP+QRSTUVWXYZ').variables(), ['ABCDEFG', 'HIJKLMNOP', 'QRSTUVWXYZ']);
+        assert.deepStrictEqual(parser.parse('abc123+def456*ghi789/jkl0').variables(), ['abc123', 'def456', 'ghi789', 'jkl0']);
+        assert.deepStrictEqual(parser.parse('_').variables(), ['_']);
+        assert.deepStrictEqual(parser.parse('_x').variables(), ['_x']);
+        assert.deepStrictEqual(parser.parse('$x').variables(), ['$x']);
+        assert.deepStrictEqual(parser.parse('$xyz').variables(), ['$xyz']);
+        assert.deepStrictEqual(parser.parse('$a_sdf').variables(), ['$a_sdf']);
+        assert.deepStrictEqual(parser.parse('$xyz_123').variables(), ['$xyz_123']);
+        assert.deepStrictEqual(parser.parse('_xyz_123').variables(), ['_xyz_123']);
       });
 
       it('should not parse invalid variables', function () {
@@ -355,7 +355,7 @@ describe('Parser', function () {
             sqrt: true,
             divide: true,
             percent: true,
-            'in': true,
+            in: true,
             assignment: true
           }
         });
@@ -363,7 +363,7 @@ describe('Parser', function () {
         assert.strictEqual(parser.evaluate('sqrt(16)'), 4);
         assert.strictEqual(parser.evaluate('50#'), 0.5);
         assert.strictEqual(parser.evaluate('4 / 6'), 2 / 3);
-        assert.strictEqual(parser.evaluate('3 in array', { array: [ 1, 2, 3 ] }), true);
+        assert.strictEqual(parser.evaluate('3 in array', { array: [1, 2, 3] }), true);
         assert.strictEqual(parser.evaluate('x = 4', { x: 2 }), 4);
       });
     });
@@ -446,23 +446,23 @@ describe('Parser', function () {
     it('should allow in operator to be enabled', function () {
       var parser = new Parser({
         operators: {
-          'in': true
+          in: true
         }
       });
 
       assert.throws(function () { parser.parse('5 * in'); }, Error);
-      assert.strictEqual(parser.evaluate('5 in a', { a: [ 2, 3, 5 ] }), true);
+      assert.strictEqual(parser.evaluate('5 in a', { a: [2, 3, 5] }), true);
     });
 
     it('should allow in operator to be disabled', function () {
       var parser = new Parser({
         operators: {
-          'in': false
+          in: false
         }
       });
 
       assert.throws(function () { parser.parse('5 in a'); }, Error);
-      assert.strictEqual(parser.evaluate('5 * in', { 'in': 3 }), 15);
+      assert.strictEqual(parser.evaluate('5 * in', { in: 3 }), 15);
     });
 
     it('should allow logical operators to be disabled', function () {
@@ -522,7 +522,7 @@ describe('Parser', function () {
     it('should allow assignment operator to be enabled', function () {
       var parser = new Parser({
         operators: {
-          'assignment': true
+          assignment: true
         }
       });
 
@@ -533,7 +533,7 @@ describe('Parser', function () {
     it('should allow assignment operator to be disabled', function () {
       var parser = new Parser({
         operators: {
-          'assignment': false
+          assignment: false
         }
       });
 
@@ -554,7 +554,7 @@ describe('Parser', function () {
       });
 
       assert.deepStrictEqual(parser.evaluate('[1, 2, 3]'), [1, 2, 3]);
-      assert.strictEqual(parser.evaluate('a[0]', { a: [ 4, 2 ] }), 4);
+      assert.strictEqual(parser.evaluate('a[0]', { a: [4, 2] }), 4);
     });
 
     it('should allow arrays to be disabled', function () {

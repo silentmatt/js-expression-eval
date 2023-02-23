@@ -284,20 +284,20 @@ describe('Functions', function () {
 
     it('should call built-in functions', function () {
       var parser = new Parser();
-      assert.deepStrictEqual(parser.evaluate('map(sqrt, [0, 1, 16, 81])'), [ 0, 1, 4, 9 ]);
-      assert.deepStrictEqual(parser.evaluate('map(max, [2, 2, 2, 2, 2, 2])'), [ 2, 2, 2, 3, 4, 5 ]);
+      assert.deepStrictEqual(parser.evaluate('map(sqrt, [0, 1, 16, 81])'), [0, 1, 4, 9]);
+      assert.deepStrictEqual(parser.evaluate('map(max, [2, 2, 2, 2, 2, 2])'), [2, 2, 2, 3, 4, 5]);
     });
 
     it('should call self-defined functions', function () {
       var parser = new Parser();
-      assert.deepStrictEqual(parser.evaluate('f(a) = a*a; map(f, [0, 1, 2, 3, 4])'), [ 0, 1, 4, 9, 16 ]);
+      assert.deepStrictEqual(parser.evaluate('f(a) = a*a; map(f, [0, 1, 2, 3, 4])'), [0, 1, 4, 9, 16]);
     });
 
     it('should call self-defined functions with index', function () {
       var parser = new Parser();
-      assert.deepStrictEqual(parser.evaluate('f(a, i) = a+i; map(f, [1,3,5,7,9])'), [ 1, 4, 7, 10, 13 ]);
-      assert.deepStrictEqual(parser.evaluate('map(anon(a, i) = a+i, [1,3,5,7,9])'), [ 1, 4, 7, 10, 13 ]);
-      assert.deepStrictEqual(parser.evaluate('f(a, i) = i; map(f, [1,3,5,7,9])'), [ 0, 1, 2, 3, 4 ]);
+      assert.deepStrictEqual(parser.evaluate('f(a, i) = a+i; map(f, [1,3,5,7,9])'), [1, 4, 7, 10, 13]);
+      assert.deepStrictEqual(parser.evaluate('map(anon(a, i) = a+i, [1,3,5,7,9])'), [1, 4, 7, 10, 13]);
+      assert.deepStrictEqual(parser.evaluate('f(a, i) = i; map(f, [1,3,5,7,9])'), [0, 1, 2, 3, 4]);
     });
   });
 
@@ -360,19 +360,19 @@ describe('Functions', function () {
 
     it('should call built-in functions', function () {
       var parser = new Parser();
-      assert.deepStrictEqual(parser.evaluate('filter(not, [1, 0, false, true, 2, ""])'), [ 0, false, '' ]);
+      assert.deepStrictEqual(parser.evaluate('filter(not, [1, 0, false, true, 2, ""])'), [0, false, '']);
     });
 
     it('should call self-defined functions', function () {
       var parser = new Parser();
-      assert.deepStrictEqual(parser.evaluate('f(x) = x > 2; filter(f, [1, 2, 0, 3, -1, 4])'), [ 3, 4 ]);
+      assert.deepStrictEqual(parser.evaluate('f(x) = x > 2; filter(f, [1, 2, 0, 3, -1, 4])'), [3, 4]);
       assert.deepStrictEqual(parser.evaluate('f(x) = x > 2; filter(f, [1, 2, 0, 1.9, -1, -4])'), []);
     });
 
     it('should call self-defined functions with index', function () {
       var parser = new Parser();
-      assert.deepStrictEqual(parser.evaluate('f(a, i) = a <= i; filter(f, [1,0,5,3,2])'), [ 0, 3, 2 ]);
-      assert.deepStrictEqual(parser.evaluate('f(a, i) = i > 3; filter(f, [9,0,5,6,1,2,3,4])'), [ 1, 2, 3, 4 ]);
+      assert.deepStrictEqual(parser.evaluate('f(a, i) = a <= i; filter(f, [1,0,5,3,2])'), [0, 3, 2]);
+      assert.deepStrictEqual(parser.evaluate('f(a, i) = i > 3; filter(f, [9,0,5,6,1,2,3,4])'), [1, 2, 3, 4]);
     });
   });
 

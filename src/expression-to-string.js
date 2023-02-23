@@ -119,9 +119,9 @@ export default function expressionToString(tokens, toJS) {
   }
   if (nstack.length > 1) {
     if (toJS) {
-      nstack = [ nstack.join(',') ];
+      nstack = [nstack.join(',')];
     } else {
-      nstack = [ nstack.join(';') ];
+      nstack = [nstack.join(';')];
     }
   }
   return String(nstack[0]);

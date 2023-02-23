@@ -221,27 +221,27 @@ describe('Operators', function () {
     var parser = new Parser();
 
     it('"a" in ["a", "b"]', function () {
-      assert.strictEqual(parser.evaluate('"a" in toto', { 'toto': ['a', 'b'] }), true);
+      assert.strictEqual(parser.evaluate('"a" in toto', { toto: ['a', 'b'] }), true);
     });
 
     it('"a" in ["b", "a"]', function () {
-      assert.strictEqual(parser.evaluate('"a" in toto', { 'toto': ['b', 'a'] }), true);
+      assert.strictEqual(parser.evaluate('"a" in toto', { toto: ['b', 'a'] }), true);
     });
 
     it('3 in [4, 3]', function () {
-      assert.strictEqual(parser.evaluate('3 in toto', { 'toto': [4, 3] }), true);
+      assert.strictEqual(parser.evaluate('3 in toto', { toto: [4, 3] }), true);
     });
 
     it('"c" in ["a", "b"]', function () {
-      assert.strictEqual(parser.evaluate('"c" in toto', { 'toto': ['a', 'b'] }), false);
+      assert.strictEqual(parser.evaluate('"c" in toto', { toto: ['a', 'b'] }), false);
     });
 
     it('"c" in ["b", "a"]', function () {
-      assert.strictEqual(parser.evaluate('"c" in toto', { 'toto': ['b', 'a'] }), false);
+      assert.strictEqual(parser.evaluate('"c" in toto', { toto: ['b', 'a'] }), false);
     });
 
     it('3 in [1, 2]', function () {
-      assert.strictEqual(parser.evaluate('3 in toto', { 'toto': [1, 2] }), false);
+      assert.strictEqual(parser.evaluate('3 in toto', { toto: [1, 2] }), false);
     });
   });
 
@@ -910,19 +910,19 @@ describe('Operators', function () {
 
   describe('[] operator', function () {
     it('a[0]', function () {
-      assert.strictEqual(Parser.evaluate('a[0]', { a: [ 4, 3, 2, 1 ] }), 4);
+      assert.strictEqual(Parser.evaluate('a[0]', { a: [4, 3, 2, 1] }), 4);
     });
 
     it('a[0.1]', function () {
-      assert.strictEqual(Parser.evaluate('a[0.1]', { a: [ 4, 3, 2, 1 ] }), 4);
+      assert.strictEqual(Parser.evaluate('a[0.1]', { a: [4, 3, 2, 1] }), 4);
     });
 
     it('a[3]', function () {
-      assert.strictEqual(Parser.evaluate('a[3]', { a: [ 4, 3, 2, 1 ] }), 1);
+      assert.strictEqual(Parser.evaluate('a[3]', { a: [4, 3, 2, 1] }), 1);
     });
 
     it('a[3 - 2]', function () {
-      assert.strictEqual(Parser.evaluate('a[3 - 2]', { a: [ 4, 3, 2, 1 ] }), 3);
+      assert.strictEqual(Parser.evaluate('a[3 - 2]', { a: [4, 3, 2, 1] }), 3);
     });
 
     it('a["foo"]', function () {
@@ -930,7 +930,7 @@ describe('Operators', function () {
     });
 
     it('a[2]^3', function () {
-      assert.strictEqual(Parser.evaluate('a[2]^3', { a: [ 1, 2, 3, 4 ] }), 27);
+      assert.strictEqual(Parser.evaluate('a[2]^3', { a: [1, 2, 3, 4] }), 27);
     });
   });
 
@@ -959,9 +959,9 @@ describe('Operators', function () {
       assert.ok(isNaN(parser.evaluate('cbrt(0/0)')));
       assert.strictEqual(parser.evaluate('cbrt -1'), -1);
       assert.strictEqual(parser.evaluate('cbrt 0'), 0);
-      assert.strictEqual(parser.evaluate('cbrt(-1/0)'), -1/0);
+      assert.strictEqual(parser.evaluate('cbrt(-1/0)'), -1 / 0);
       assert.strictEqual(parser.evaluate('cbrt 1'), 1);
-      assert.strictEqual(parser.evaluate('cbrt(1/0)'), 1/0);
+      assert.strictEqual(parser.evaluate('cbrt(1/0)'), 1 / 0);
       assertCloseTo(parser.evaluate('cbrt 2'), 1.2599210498948732, delta);
       assertCloseTo(parser.evaluate('cbrt -2'), -1.2599210498948732, delta);
       assert.strictEqual(parser.evaluate('cbrt 8'), 2);
@@ -997,7 +997,7 @@ describe('Operators', function () {
       var delta = 1e-15;
 
       assert.ok(isNaN(parser.evaluate('log1p(0/0)')));
-      assert.strictEqual(parser.evaluate('log1p -1'), -1/0);
+      assert.strictEqual(parser.evaluate('log1p -1'), -1 / 0);
       assert.strictEqual(parser.evaluate('log1p 0'), 0);
       assertCloseTo(parser.evaluate('log1p 1'), 0.6931471805599453, delta);
       assert.ok(isNaN(parser.evaluate('log1p -2')));
@@ -1014,7 +1014,7 @@ describe('Operators', function () {
 
       assert.ok(isNaN(parser.evaluate('log2(0/0)')));
       assert.ok(isNaN(parser.evaluate('log2 -1')));
-      assert.strictEqual(parser.evaluate('log2 0'), -1/0);
+      assert.strictEqual(parser.evaluate('log2 0'), -1 / 0);
       assert.strictEqual(Parser.evaluate('log2 1'), 0);
       assert.strictEqual(Parser.evaluate('log2 2'), 1);
       assert.strictEqual(Parser.evaluate('log2 3'), 1.584962500721156);

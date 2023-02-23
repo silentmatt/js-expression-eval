@@ -330,7 +330,7 @@ export function sign(x) {
   return ((x > 0) - (x < 0)) || +x;
 }
 
-var ONE_THIRD = 1/3;
+var ONE_THIRD = 1 / 3;
 export function cbrt(x) {
   return x < 0 ? -Math.pow(-x, ONE_THIRD) : Math.pow(x, ONE_THIRD);
 }

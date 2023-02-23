@@ -63,9 +63,10 @@ export default function evaluate(tokens, expr, values) {
     } else if (type === IFUNCOP) {
       n2 = nstack.pop();
       n1 = nstack.pop();
+      args = [n1, n2];
       f = expr.functions[item.value];
       if (f.apply && f.call) {
-        nstack.push(f.apply(undefined, [n1, n2]));
+        nstack.push(f.apply(undefined, args));
       } else {
         throw new Error(f + ' is not a function');
       }

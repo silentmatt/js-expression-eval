@@ -16,7 +16,7 @@ export default function simplify(tokens, unaryOps, binaryOps, ternaryOps, values
       } else {
         nstack.push(item);
       }
-    } else if (type === IVAR && values.hasOwnProperty(item.value)) {
+    } else if (type === IVAR && Object.prototype.hasOwnProperty.call(values, item.value)) {
       item = new Instruction(INUMBER, values[item.value]);
       nstack.push(item);
     } else if (type === IOP2 && nstack.length > 1) {
@@ -49,13 +49,7 @@ export default function simplify(tokens, unaryOps, binaryOps, ternaryOps, values
     } else if (type === IMEMBER && nstack.length > 0) {
       n1 = nstack.pop();
       nstack.push(new Instruction(INUMBER, n1.value[item.value]));
-    } /* else if (type === IARRAY && nstack.length >= item.value) {
-      var length = item.value;
-      while (length-- > 0) {
-        newexpression.push(nstack.pop());
-      }
-      newexpression.push(new Instruction(IARRAY, item.value));
-    } */ else {
+    } else {
       while (nstack.length > 0) {
         newexpression.push(nstack.shift());
       }
