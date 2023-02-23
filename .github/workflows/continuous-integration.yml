@@ -1,0 +1,53 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Continuous integration
+
+on:
+    pull_request:
+        branches: [develop]
+
+jobs:
+    code-check:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+              with:
+                  token: ${{ secrets.GH_TOKEN }}
+            - run: git fetch --tags --unshallow
+            - name: Check commit
+              if: always()
+              uses: oat-sa/conventional-commit-action@v0
+              with:
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
+            - uses: actions/setup-node@v1
+              with:
+                  node-version: 14.x
+                  registry-url: https://registry.npmjs.org
+            - name: Install packages
+              run: npm ci
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.BUILD_NPM_TOKEN }}
+            - name: Running tests
+              run: |
+                  npm run coverage
+                  npm run coverage:clover
+            - name: Report coverage
+              if: always()
+              uses: slavcodev/coverage-monitor-action@1.1.0
+              with:
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  clover_file: .coverage/clover.xml
+                  threshold_alert: 75
+                  threshold_warning: 90
+                  comment_mode: update
+            - name: Save Code Linting Report JSON
+              if: always()
+              run: npm run lint:report
+            - name: Annotate Code Linting Results
+              if: always()
+              continue-on-error: true
+              uses: ataylorme/eslint-annotate-action@1.2.0
+              with:
+                  repo-token: '${{ secrets.GITHUB_TOKEN }}'
+                  report-json: 'eslint_report.json'
