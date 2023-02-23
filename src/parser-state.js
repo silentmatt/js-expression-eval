@@ -1,5 +1,5 @@
-import { TOP, TFUNCOP, TNUMBER, TSTRING, TPAREN, TCOMMA, TNAME } from './token';
-import { Instruction, INUMBER, IVAR, IFUNCOP, IFUNCALL, IEXPR, IMEMBER, ternaryInstruction, binaryInstruction, unaryInstruction } from './instruction';
+import { TOP, TFUNCOP, TNUMBER, TSTRING, TPAREN, TBRACKET, TCOMMA, TNAME, TSEMICOLON, TEOF } from './token';
+import { Instruction, INUMBER, IVAR, IFUNCOP, IVARNAME, IFUNCALL, IFUNDEF, IEXPR, IMEMBER, IENDSTATEMENT, IARRAY, ternaryInstruction, binaryInstruction, unaryInstruction } from './instruction';
 import contains from './contains';
 
 export function ParserState(parser, tokenStream, options) {
@@ -58,7 +58,12 @@ ParserState.prototype.expect = function (type, value) {
 };
 
 ParserState.prototype.parseAtom = function (instr) {
-  if (this.accept(TNAME)) {
+  var unaryOps = this.tokens.unaryOps;
+  function isPrefixOperator(token) {
+    return token.value in unaryOps;
+  }
+
+  if (this.accept(TNAME) || this.accept(TOP, isPrefixOperator)) {
     instr.push(new Instruction(IVAR, this.current.value));
   } else if (this.accept(TNUMBER)) {
     instr.push(new Instruction(INUMBER, this.current.value));
@@ -67,13 +72,92 @@ ParserState.prototype.parseAtom = function (instr) {
   } else if (this.accept(TPAREN, '(')) {
     this.parseExpression(instr);
     this.expect(TPAREN, ')');
+  } else if (this.accept(TBRACKET, '[')) {
+    if (this.accept(TBRACKET, ']')) {
+      instr.push(new Instruction(IARRAY, 0));
+    } else {
+      var argCount = this.parseArrayList(instr);
+      instr.push(new Instruction(IARRAY, argCount));
+    }
   } else {
     throw new Error('unexpected ' + this.nextToken);
   }
 };
 
 ParserState.prototype.parseExpression = function (instr) {
+  var exprInstr = [];
+  if (this.parseUntilEndStatement(instr, exprInstr)) {
+    return;
+  }
+  this.parseVariableAssignmentExpression(exprInstr);
+  if (this.parseUntilEndStatement(instr, exprInstr)) {
+    return;
+  }
+  this.pushExpression(instr, exprInstr);
+};
+
+ParserState.prototype.pushExpression = function (instr, exprInstr) {
+  for (var i = 0, len = exprInstr.length; i < len; i++) {
+    instr.push(exprInstr[i]);
+  }
+};
+
+ParserState.prototype.parseUntilEndStatement = function (instr, exprInstr) {
+  if (!this.accept(TSEMICOLON)) return false;
+  if (this.nextToken && this.nextToken.type !== TEOF && !(this.nextToken.type === TPAREN && this.nextToken.value === ')')) {
+    exprInstr.push(new Instruction(IENDSTATEMENT));
+  }
+  if (this.nextToken.type !== TEOF) {
+    this.parseExpression(exprInstr);
+  }
+  instr.push(new Instruction(IEXPR, exprInstr));
+  return true;
+};
+
+ParserState.prototype.parseArrayList = function (instr) {
+  var argCount = 0;
+
+  while (!this.accept(TBRACKET, ']')) {
+    this.parseExpression(instr);
+    ++argCount;
+    while (this.accept(TCOMMA)) {
+      this.parseExpression(instr);
+      ++argCount;
+    }
+  }
+
+  return argCount;
+};
+
+ParserState.prototype.parseVariableAssignmentExpression = function (instr) {
   this.parseConditionalExpression(instr);
+  while (this.accept(TOP, '=')) {
+    var varName = instr.pop();
+    var varValue = [];
+    var lastInstrIndex = instr.length - 1;
+    if (varName.type === IFUNCALL) {
+      if (!this.tokens.isOperatorEnabled('()=')) {
+        throw new Error('function definition is not permitted');
+      }
+      for (var i = 0, len = varName.value + 1; i < len; i++) {
+        var index = lastInstrIndex - i;
+        if (instr[index].type === IVAR) {
+          instr[index] = new Instruction(IVARNAME, instr[index].value);
+        }
+      }
+      this.parseVariableAssignmentExpression(varValue);
+      instr.push(new Instruction(IEXPR, varValue));
+      instr.push(new Instruction(IFUNDEF, varName.value));
+      continue;
+    }
+    if (varName.type !== IVAR && varName.type !== IMEMBER) {
+      throw new Error('expected variable for assignment');
+    }
+    this.parseVariableAssignmentExpression(varValue);
+    instr.push(new Instruction(IVARNAME, varName.value));
+    instr.push(new Instruction(IEXPR, varValue));
+    instr.push(binaryInstruction('='));
+  }
 };
 
 ParserState.prototype.parseConditionalExpression = function (instr) {
@@ -151,14 +235,21 @@ ParserState.prototype.parseFactor = function (instr) {
 
   this.save();
   if (this.accept(TOP, isPrefixOperator)) {
-    if ((this.current.value !== '-' && this.current.value !== '+' && this.nextToken.type === TPAREN && this.nextToken.value === '(')) {
-      this.restore();
-      this.parseExponential(instr);
-    } else {
-      var op = this.current;
-      this.parseFactor(instr);
-      instr.push(unaryInstruction(op.value));
+    if (this.current.value !== '-' && this.current.value !== '+') {
+      if (this.nextToken.type === TPAREN && this.nextToken.value === '(') {
+        this.restore();
+        this.parseExponential(instr);
+        return;
+      } else if (this.nextToken.type === TSEMICOLON || this.nextToken.type === TCOMMA || this.nextToken.type === TEOF || (this.nextToken.type === TPAREN && this.nextToken.value === ')')) {
+        this.restore();
+        this.parseAtom(instr);
+        return;
+      }
     }
+
+    var op = this.current;
+    this.parseFactor(instr);
+    instr.push(unaryInstruction(op.value));
   } else {
     this.parseExponential(instr);
   }
@@ -233,12 +324,26 @@ ParserState.prototype.parseArgumentList = function (instr) {
 
 ParserState.prototype.parseMemberExpression = function (instr) {
   this.parseAtom(instr);
-  while (this.accept(TOP, '.')) {
-    if (!this.allowMemberAccess) {
-      throw new Error('unexpected ".", member access is not permitted');
-    }
+  while (this.accept(TOP, '.') || this.accept(TBRACKET, '[')) {
+    var op = this.current;
 
-    this.expect(TNAME);
-    instr.push(new Instruction(IMEMBER, this.current.value));
+    if (op.value === '.') {
+      if (!this.allowMemberAccess) {
+        throw new Error('unexpected ".", member access is not permitted');
+      }
+
+      this.expect(TNAME);
+      instr.push(new Instruction(IMEMBER, this.current.value));
+    } else if (op.value === '[') {
+      if (!this.tokens.isOperatorEnabled('[')) {
+        throw new Error('unexpected "[]", arrays are disabled');
+      }
+
+      this.parseExpression(instr);
+      this.expect(TBRACKET, ']');
+      instr.push(binaryInstruction('['));
+    } else {
+      throw new Error('unexpected symbol: ' + op.value);
+    }
   }
 };

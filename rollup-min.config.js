@@ -1,7 +1,7 @@
 import rollupConfig from './rollup.config';
-import uglify from 'rollup-plugin-uglify';
+import { terser } from 'rollup-plugin-terser';
 
-rollupConfig.plugins = [ uglify() ];
+rollupConfig.plugins = [ terser() ];
 rollupConfig.output.file = 'dist/bundle.min.js';
 
 export default rollupConfig;

@@ -21,6 +21,9 @@ export function mod(a, b) {
 }
 
 export function concat(a, b) {
+  if (Array.isArray(a) && Array.isArray(b)) {
+    return a.concat(b);
+  }
   return '' + a + b;
 }
 
@@ -184,7 +187,10 @@ export function gamma(n) {
   return Math.sqrt(2 * Math.PI) * Math.pow(t, n + 0.5) * Math.exp(-t) * x;
 }
 
-export function stringLength(s) {
+export function stringOrArrayLength(s) {
+  if (Array.isArray(s)) {
+    return s.length;
+  }
   return String(s).length;
 }
 
@@ -237,4 +243,112 @@ export function roundTo(value, exp) {
   // Shift back
   value = value.toString().split('e');
   return +(value[0] + 'e' + (value[1] ? (+value[1] + exp) : exp));
+}
+
+export function setVar(name, value, variables) {
+  if (variables) variables[name] = value;
+  return value;
+}
+
+export function arrayIndex(array, index) {
+  return array[index | 0];
+}
+
+export function max(array) {
+  if (arguments.length === 1 && Array.isArray(array)) {
+    return Math.max.apply(Math, array);
+  } else {
+    return Math.max.apply(Math, arguments);
+  }
+}
+
+export function min(array) {
+  if (arguments.length === 1 && Array.isArray(array)) {
+    return Math.min.apply(Math, array);
+  } else {
+    return Math.min.apply(Math, arguments);
+  }
+}
+
+export function arrayMap(f, a) {
+  if (typeof f !== 'function') {
+    throw new Error('First argument to map is not a function');
+  }
+  if (!Array.isArray(a)) {
+    throw new Error('Second argument to map is not an array');
+  }
+  return a.map(function (x, i) {
+    return f(x, i);
+  });
+}
+
+export function arrayFold(f, init, a) {
+  if (typeof f !== 'function') {
+    throw new Error('First argument to fold is not a function');
+  }
+  if (!Array.isArray(a)) {
+    throw new Error('Second argument to fold is not an array');
+  }
+  return a.reduce(function (acc, x, i) {
+    return f(acc, x, i);
+  }, init);
+}
+
+export function arrayFilter(f, a) {
+  if (typeof f !== 'function') {
+    throw new Error('First argument to filter is not a function');
+  }
+  if (!Array.isArray(a)) {
+    throw new Error('Second argument to filter is not an array');
+  }
+  return a.filter(function (x, i) {
+    return f(x, i);
+  });
+}
+
+export function stringOrArrayIndexOf(target, s) {
+  if (!(Array.isArray(s) || typeof s === 'string')) {
+    throw new Error('Second argument to indexOf is not a string or array');
+  }
+
+  return s.indexOf(target);
+}
+
+export function arrayJoin(sep, a) {
+  if (!Array.isArray(a)) {
+    throw new Error('Second argument to join is not an array');
+  }
+
+  return a.join(sep);
+}
+
+export function sign(x) {
+  return ((x > 0) - (x < 0)) || +x;
+}
+
+var ONE_THIRD = 1/3;
+export function cbrt(x) {
+  return x < 0 ? -Math.pow(-x, ONE_THIRD) : Math.pow(x, ONE_THIRD);
+}
+
+export function expm1(x) {
+  return Math.exp(x) - 1;
+}
+
+export function log1p(x) {
+  return Math.log(1 + x);
+}
+
+export function log2(x) {
+  return Math.log(x) / Math.LN2;
+}
+
+export function sum(array) {
+  if (!Array.isArray(array)) {
+    throw new Error('Sum argument is not an array');
+  }
+
+  return array.reduce(function (total, value) {
+    return total + Number(value);
+  }, 0);
 }

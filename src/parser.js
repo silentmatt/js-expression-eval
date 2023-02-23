@@ -31,10 +31,25 @@ import {
   random,
   factorial,
   gamma,
-  stringLength,
+  stringOrArrayLength,
   hypot,
   condition,
-  roundTo
+  roundTo,
+  setVar,
+  arrayIndex,
+  max,
+  min,
+  arrayMap,
+  arrayFold,
+  arrayFilter,
+  stringOrArrayIndexOf,
+  arrayJoin,
+  sign,
+  cbrt,
+  expm1,
+  log1p,
+  log2,
+  sum
 } from './functions';
 
 export function Parser(options) {
@@ -53,10 +68,14 @@ export function Parser(options) {
     acosh: Math.acosh || acosh,
     atanh: Math.atanh || atanh,
     sqrt: Math.sqrt,
+    cbrt: Math.cbrt || cbrt,
     log: Math.log,
+    log2: Math.log2 || log2,
     ln: Math.log,
     lg: Math.log10 || log10,
     log10: Math.log10 || log10,
+    expm1: Math.expm1 || expm1,
+    log1p: Math.log1p || log1p,
     abs: Math.abs,
     ceil: Math.ceil,
     floor: Math.floor,
@@ -66,8 +85,9 @@ export function Parser(options) {
     '+': Number,
     exp: Math.exp,
     not: not,
-    length: stringLength,
-    '!': factorial
+    length: stringOrArrayLength,
+    '!': factorial,
+    sign: Math.sign || sign
   };
 
   this.binaryOps = {
@@ -86,7 +106,9 @@ export function Parser(options) {
     '<=': lessThanEqual,
     and: andOperator,
     or: orOperator,
-    'in': inOperator
+    'in': inOperator,
+    '=': setVar,
+    '[': arrayIndex
   };
 
   this.ternaryOps = {
@@ -96,15 +118,21 @@ export function Parser(options) {
   this.functions = {
     random: random,
     fac: factorial,
-    min: Math.min,
-    max: Math.max,
+    min: min,
+    max: max,
     hypot: Math.hypot || hypot,
     pyt: Math.hypot || hypot, // backward compat
     pow: Math.pow,
     atan2: Math.atan2,
     'if': condition,
     gamma: gamma,
-    roundTo: roundTo
+    roundTo: roundTo,
+    map: arrayMap,
+    fold: arrayFold,
+    filter: arrayFilter,
+    indexOf: stringOrArrayIndexOf,
+    join: arrayJoin,
+    sum: sum
   };
 
   this.consts = {
@@ -141,4 +169,40 @@ Parser.parse = function (expr) {
 
 Parser.evaluate = function (expr, variables) {
   return sharedParser.parse(expr).evaluate(variables);
+};
+
+var optionNameMap = {
+  '+': 'add',
+  '-': 'subtract',
+  '*': 'multiply',
+  '/': 'divide',
+  '%': 'remainder',
+  '^': 'power',
+  '!': 'factorial',
+  '<': 'comparison',
+  '>': 'comparison',
+  '<=': 'comparison',
+  '>=': 'comparison',
+  '==': 'comparison',
+  '!=': 'comparison',
+  '||': 'concatenate',
+  'and': 'logical',
+  'or': 'logical',
+  'not': 'logical',
+  '?': 'conditional',
+  ':': 'conditional',
+  '=': 'assignment',
+  '[': 'array',
+  '()=': 'fndef'
+};
+
+function getOptionName(op) {
+  return optionNameMap.hasOwnProperty(op) ? optionNameMap[op] : op;
+}
+
+Parser.prototype.isOperatorEnabled = function (op) {
+  var optionName = getOptionName(op);
+  var operators = this.options.operators || {};
+
+  return !(optionName in operators) || !!operators[optionName];
 };

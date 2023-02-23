@@ -1,4 +1,4 @@
-import { IVAR, IMEMBER, IEXPR } from './instruction';
+import { IVAR, IMEMBER, IEXPR, IVARNAME } from './instruction';
 import contains from './contains';
 
 export default function getSymbols(tokens, symbols, options) {
@@ -8,7 +8,7 @@ export default function getSymbols(tokens, symbols, options) {
 
   for (var i = 0; i < tokens.length; i++) {
     var item = tokens[i];
-    if (item.type === IVAR) {
+    if (item.type === IVAR || item.type === IVARNAME) {
       if (!withMembers && !contains(symbols, item.value)) {
         symbols.push(item.value);
       } else if (prevVar !== null) {

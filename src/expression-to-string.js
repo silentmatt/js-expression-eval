@@ -1,15 +1,17 @@
-import { INUMBER, IOP1, IOP2, IOP3, IVAR, IFUNCALL, IEXPR, IMEMBER } from './instruction';
+import { INUMBER, IOP1, IOP2, IOP3, IVAR, IVARNAME, IFUNCALL, IFUNDEF, IEXPR, IMEMBER, IENDSTATEMENT, IARRAY } from './instruction';
 
 export default function expressionToString(tokens, toJS) {
   var nstack = [];
   var n1, n2, n3;
-  var f;
+  var f, args, argCount;
   for (var i = 0; i < tokens.length; i++) {
     var item = tokens[i];
     var type = item.type;
     if (type === INUMBER) {
       if (typeof item.value === 'number' && item.value < 0) {
         nstack.push('(' + item.value + ')');
+      } else if (Array.isArray(item.value)) {
+        nstack.push('[' + item.value.map(escapeValue).join(', ') + ']');
       } else {
         nstack.push(escapeValue(item.value));
       }
@@ -25,16 +27,22 @@ export default function expressionToString(tokens, toJS) {
         } else if (f === 'or') {
           nstack.push('(!!' + n1 + ' || !!' + n2 + ')');
         } else if (f === '||') {
-          nstack.push('(String(' + n1 + ') + String(' + n2 + '))');
+          nstack.push('(function(a,b){ return Array.isArray(a) && Array.isArray(b) ? a.concat(b) : String(a) + String(b); }((' + n1 + '),(' + n2 + ')))');
         } else if (f === '==') {
           nstack.push('(' + n1 + ' === ' + n2 + ')');
         } else if (f === '!=') {
           nstack.push('(' + n1 + ' !== ' + n2 + ')');
+        } else if (f === '[') {
+          nstack.push(n1 + '[(' + n2 + ') | 0]');
         } else {
           nstack.push('(' + n1 + ' ' + f + ' ' + n2 + ')');
         }
       } else {
-        nstack.push('(' + n1 + ' ' + f + ' ' + n2 + ')');
+        if (f === '[') {
+          nstack.push(n1 + '[' + n2 + ']');
+        } else {
+          nstack.push('(' + n1 + ' ' + f + ' ' + n2 + ')');
+        }
       }
     } else if (type === IOP3) {
       n3 = nstack.pop();
@@ -46,7 +54,7 @@ export default function expressionToString(tokens, toJS) {
       } else {
         throw new Error('invalid Expression');
       }
-    } else if (type === IVAR) {
+    } else if (type === IVAR || type === IVARNAME) {
       nstack.push(item.value);
     } else if (type === IOP1) {
       n1 = nstack.pop();
@@ -67,24 +75,50 @@ export default function expressionToString(tokens, toJS) {
         nstack.push('(' + f + ' ' + n1 + ')');
       }
     } else if (type === IFUNCALL) {
-      var argCount = item.value;
-      var args = [];
+      argCount = item.value;
+      args = [];
       while (argCount-- > 0) {
         args.unshift(nstack.pop());
       }
       f = nstack.pop();
       nstack.push(f + '(' + args.join(', ') + ')');
+    } else if (type === IFUNDEF) {
+      n2 = nstack.pop();
+      argCount = item.value;
+      args = [];
+      while (argCount-- > 0) {
+        args.unshift(nstack.pop());
+      }
+      n1 = nstack.pop();
+      if (toJS) {
+        nstack.push('(' + n1 + ' = function(' + args.join(', ') + ') { return ' + n2 + ' })');
+      } else {
+        nstack.push('(' + n1 + '(' + args.join(', ') + ') = ' + n2 + ')');
+      }
     } else if (type === IMEMBER) {
       n1 = nstack.pop();
       nstack.push(n1 + '.' + item.value);
+    } else if (type === IARRAY) {
+      argCount = item.value;
+      args = [];
+      while (argCount-- > 0) {
+        args.unshift(nstack.pop());
+      }
+      nstack.push('[' + args.join(', ') + ']');
     } else if (type === IEXPR) {
       nstack.push('(' + expressionToString(item.value, toJS) + ')');
+    } else if (type === IENDSTATEMENT) {
+      // eslint-disable no-empty
     } else {
       throw new Error('invalid Expression');
     }
   }
   if (nstack.length > 1) {
-    throw new Error('invalid Expression (parity)');
+    if (toJS) {
+      nstack = [ nstack.join(',') ];
+    } else {
+      nstack = [ nstack.join(';') ];
+    }
   }
   return String(nstack[0]);
 }

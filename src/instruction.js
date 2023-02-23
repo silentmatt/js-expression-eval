@@ -3,10 +3,15 @@ export var IOP1 = 'IOP1';
 export var IOP2 = 'IOP2';
 export var IOP3 = 'IOP3';
 export var IVAR = 'IVAR';
+export var IVARNAME = 'IVARNAME';
 export var IFUNCOP = 'IFUNCOP';
 export var IFUNCALL = 'IFUNCALL';
+export var IFUNDEF = 'IFUNDEF';
 export var IEXPR = 'IEXPR';
+export var IEXPREVAL = 'IEXPREVAL';
 export var IMEMBER = 'IMEMBER';
+export var IENDSTATEMENT = 'IENDSTATEMENT';
+export var IARRAY = 'IARRAY';
 
 export function Instruction(type, value) {
   this.type = type;
@@ -20,10 +25,16 @@ Instruction.prototype.toString = function () {
     case IOP2:
     case IOP3:
     case IVAR:
+    case IVARNAME:
+    case IENDSTATEMENT:
     case IFUNCOP:
       return this.value;
     case IFUNCALL:
       return 'CALL ' + this.value;
+    case IFUNDEF:
+      return 'DEF ' + this.value;
+    case IARRAY:
+      return 'ARRAY ' + this.value;
     case IMEMBER:
       return '.' + this.value;
     default:

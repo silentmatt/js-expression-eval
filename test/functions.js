@@ -80,7 +80,7 @@ describe('Functions', function () {
         distinct[x] = true;
       }
       // Technically, these could fail but that should be extremely rare
-      assert.equal(Object.keys(distinct).length, 1000);
+      assert.strictEqual(Object.keys(distinct).length, 1000);
       assert.ok((sum / 1000 >= 0.4) && (sum / 1000 <= 0.6));
     });
   });
@@ -106,11 +106,13 @@ describe('Functions', function () {
     it('should return the smallest value', function () {
       var parser = new Parser();
       assert.strictEqual(parser.evaluate('min()'), Infinity);
+      assert.strictEqual(parser.evaluate('min([])'), Infinity);
       assert.strictEqual(parser.evaluate('min(1)'), 1);
       assert.strictEqual(parser.evaluate('min(1,2)'), 1);
       assert.strictEqual(parser.evaluate('min(2,1)'), 1);
       assert.strictEqual(parser.evaluate('min(2,1,0)'), 0);
       assert.strictEqual(parser.evaluate('min(4,3,2,1,0,1,2,3,4,-5,6)'), -5);
+      assert.strictEqual(parser.evaluate('min([1,0,2,-4,8,-16,3.2])'), -16);
     });
   });
 
@@ -118,11 +120,13 @@ describe('Functions', function () {
     it('should return the largest value', function () {
       var parser = new Parser();
       assert.strictEqual(parser.evaluate('max()'), -Infinity);
+      assert.strictEqual(parser.evaluate('max([])'), -Infinity);
       assert.strictEqual(parser.evaluate('max(1)'), 1);
       assert.strictEqual(parser.evaluate('max(1,2)'), 2);
       assert.strictEqual(parser.evaluate('max(2,1)'), 2);
       assert.strictEqual(parser.evaluate('max(2,1,0)'), 2);
       assert.strictEqual(parser.evaluate('max(4,3,2,1,0,1,2,3,4,-5,6)'), 6);
+      assert.strictEqual(parser.evaluate('max([1,0,2,-4,8,-16,3.2])'), 8);
     });
   });
 
@@ -242,6 +246,243 @@ describe('Functions', function () {
       assert.ok(isNaN(parser.evaluate('gamma()')));
       assert.strictEqual(parser.evaluate('gamma(1/0)'), Infinity);
       assert.ok(isNaN(parser.evaluate('gamma(-1/0)')));
+    });
+  });
+
+  describe('map(f, a)', function () {
+    it('should work on empty arrays', function () {
+      var parser = new Parser();
+      assert.deepStrictEqual(parser.evaluate('map(random, [])'), []);
+    });
+
+    it('should fail if first argument is not a function', function () {
+      var parser = new Parser();
+      assert.throws(function () { parser.evaluate('map(4, [])'); }, /not a function/);
+    });
+
+    it('should fail if second argument is not an array', function () {
+      var parser = new Parser();
+      assert.throws(function () { parser.evaluate('map(random, 0)'); }, /not an array/);
+    });
+
+    it('should call built-in functions', function () {
+      var parser = new Parser();
+      assert.deepStrictEqual(parser.evaluate('map(sqrt, [0, 1, 16, 81])'), [ 0, 1, 4, 9 ]);
+      assert.deepStrictEqual(parser.evaluate('map(max, [2, 2, 2, 2, 2, 2])'), [ 2, 2, 2, 3, 4, 5 ]);
+    });
+
+    it('should call self-defined functions', function () {
+      var parser = new Parser();
+      assert.deepStrictEqual(parser.evaluate('f(a) = a*a; map(f, [0, 1, 2, 3, 4])'), [ 0, 1, 4, 9, 16 ]);
+    });
+
+    it('should call self-defined functions with index', function () {
+      var parser = new Parser();
+      assert.deepStrictEqual(parser.evaluate('f(a, i) = a+i; map(f, [1,3,5,7,9])'), [ 1, 4, 7, 10, 13 ]);
+      assert.deepStrictEqual(parser.evaluate('map(anon(a, i) = a+i, [1,3,5,7,9])'), [ 1, 4, 7, 10, 13 ]);
+      assert.deepStrictEqual(parser.evaluate('f(a, i) = i; map(f, [1,3,5,7,9])'), [ 0, 1, 2, 3, 4 ]);
+    });
+  });
+
+  describe('fold(f, init, array)', function () {
+    it('should return the initial value on an empty array', function () {
+      var parser = new Parser();
+      assert.strictEqual(parser.evaluate('fold(atan2, 15, [])'), 15);
+    });
+
+    it('should fail if first argument is not a function', function () {
+      var parser = new Parser();
+      assert.throws(function () { parser.evaluate('fold(4, 0, [])'); }, /not a function/);
+    });
+
+    it('should fail if third argument is not an array', function () {
+      var parser = new Parser();
+      assert.throws(function () { parser.evaluate('fold(random, 0, 5)'); }, /not an array/);
+    });
+
+    it('should call built-in functions', function () {
+      var parser = new Parser();
+      assert.strictEqual(parser.evaluate('fold(max, -1, [1, 3, 5, 4, 2, 0])'), 5);
+      assert.strictEqual(parser.evaluate('fold(min, 10, [1, 3, 5, 4, 2, 0, -2, -1])'), -2);
+    });
+
+    it('should call self-defined functions', function () {
+      var parser = new Parser();
+      assert.strictEqual(parser.evaluate('f(a, b) = a*b; fold(f, 1, [1, 2, 3, 4, 5])'), 120);
+    });
+
+    it('should call self-defined functions with index', function () {
+      var parser = new Parser();
+      assert.strictEqual(parser.evaluate('f(a, b, i) = a*i + b; fold(f, 100, [1,3,5,7,9])'), 193);
+    });
+
+    it('should start with the accumulator', function () {
+      var parser = new Parser();
+      assert.strictEqual(parser.evaluate('f(a, b) = a*b; fold(f, 0, [1, 2, 3, 4, 5])'), 0);
+      assert.strictEqual(parser.evaluate('f(a, b) = a*b; fold(f, 1, [1, 2, 3, 4, 5])'), 120);
+      assert.strictEqual(parser.evaluate('f(a, b) = a*b; fold(f, 2, [1, 2, 3, 4, 5])'), 240);
+      assert.strictEqual(parser.evaluate('f(a, b) = a*b; fold(f, 3, [1, 2, 3, 4, 5])'), 360);
+    });
+  });
+
+  describe('filter(f, array)', function () {
+    it('should work on an empty array', function () {
+      var parser = new Parser();
+      assert.deepStrictEqual(parser.evaluate('filter(random, [])'), []);
+    });
+
+    it('should fail if first argument is not a function', function () {
+      var parser = new Parser();
+      assert.throws(function () { parser.evaluate('filter(4, [])'); }, /not a function/);
+    });
+
+    it('should fail if second argument is not an array', function () {
+      var parser = new Parser();
+      assert.throws(function () { parser.evaluate('filter(random, 5)'); }, /not an array/);
+    });
+
+    it('should call built-in functions', function () {
+      var parser = new Parser();
+      assert.deepStrictEqual(parser.evaluate('filter(not, [1, 0, false, true, 2, ""])'), [ 0, false, '' ]);
+    });
+
+    it('should call self-defined functions', function () {
+      var parser = new Parser();
+      assert.deepStrictEqual(parser.evaluate('f(x) = x > 2; filter(f, [1, 2, 0, 3, -1, 4])'), [ 3, 4 ]);
+      assert.deepStrictEqual(parser.evaluate('f(x) = x > 2; filter(f, [1, 2, 0, 1.9, -1, -4])'), []);
+    });
+
+    it('should call self-defined functions with index', function () {
+      var parser = new Parser();
+      assert.deepStrictEqual(parser.evaluate('f(a, i) = a <= i; filter(f, [1,0,5,3,2])'), [ 0, 3, 2 ]);
+      assert.deepStrictEqual(parser.evaluate('f(a, i) = i > 3; filter(f, [9,0,5,6,1,2,3,4])'), [ 1, 2, 3, 4 ]);
+    });
+  });
+
+  describe('indexOf(target, array)', function () {
+    it('should return -1 an empty array', function () {
+      var parser = new Parser();
+      assert.strictEqual(parser.evaluate('indexOf(1, [])'), -1);
+    });
+
+    it('should fail if second argument is not an array or string', function () {
+      var parser = new Parser();
+      assert.throws(function () { parser.evaluate('indexOf(5, 5)'); }, /not a string or array/);
+    });
+
+    it('should find values in the array', function () {
+      var parser = new Parser();
+      assert.strictEqual(parser.evaluate('indexOf(1, [1,0,5,3,2])'), 0);
+      assert.strictEqual(parser.evaluate('indexOf(0, [1,0,5,3,2])'), 1);
+      assert.strictEqual(parser.evaluate('indexOf(5, [1,0,5,3,2])'), 2);
+      assert.strictEqual(parser.evaluate('indexOf(3, [1,0,5,3,2])'), 3);
+      assert.strictEqual(parser.evaluate('indexOf(2, [1,0,5,3,2])'), 4);
+    });
+
+    it('should find the first matching value in the array', function () {
+      var parser = new Parser();
+      assert.strictEqual(parser.evaluate('indexOf(5, [5,0,5,3,2])'), 0);
+    });
+
+    it('should return -1 for no match', function () {
+      var parser = new Parser();
+      assert.strictEqual(parser.evaluate('indexOf(2.5, [1,0,5,3,2])'), -1);
+      assert.strictEqual(parser.evaluate('indexOf("5", [1,0,5,3,2])'), -1);
+    });
+  });
+
+  describe('indexOf(target, string)', function () {
+    it('return -1 for indexOf("x", "")', function () {
+      var parser = new Parser();
+      assert.strictEqual(parser.evaluate('indexOf("a", "")'), -1);
+    });
+
+    it('return 0 for indexOf("", *)', function () {
+      var parser = new Parser();
+      assert.strictEqual(parser.evaluate('indexOf("", "")'), 0);
+      assert.strictEqual(parser.evaluate('indexOf("", "a")'), 0);
+      assert.strictEqual(parser.evaluate('indexOf("", "foobar")'), 0);
+    });
+
+    it('should find substrings in the string', function () {
+      var parser = new Parser();
+      assert.strictEqual(parser.evaluate('indexOf("b", "bafdc")'), 0);
+      assert.strictEqual(parser.evaluate('indexOf("a", "bafdc")'), 1);
+      assert.strictEqual(parser.evaluate('indexOf("f", "bafdc")'), 2);
+      assert.strictEqual(parser.evaluate('indexOf("d", "bafdc")'), 3);
+      assert.strictEqual(parser.evaluate('indexOf("c", "bafdc")'), 4);
+
+      assert.strictEqual(parser.evaluate('indexOf("ba", "bafdc")'), 0);
+      assert.strictEqual(parser.evaluate('indexOf("afd", "bafdc")'), 1);
+      assert.strictEqual(parser.evaluate('indexOf("fdc", "bafdc")'), 2);
+      assert.strictEqual(parser.evaluate('indexOf("dc", "bafdc")'), 3);
+      assert.strictEqual(parser.evaluate('indexOf("c", "bafdc")'), 4);
+
+      assert.strictEqual(parser.evaluate('indexOf("dc", "dbafdc")'), 4);
+    });
+
+    it('should find the first matching substring in the string', function () {
+      var parser = new Parser();
+      assert.strictEqual(parser.evaluate('indexOf("c", "abcabcabc")'), 2);
+      assert.strictEqual(parser.evaluate('indexOf("ca", "abcabcabc")'), 2);
+    });
+
+    it('should find the entire string', function () {
+      var parser = new Parser();
+      assert.strictEqual(parser.evaluate('indexOf("abcabcabc", "abcabcabc")'), 0);
+    });
+
+    it('should return -1 for no match', function () {
+      var parser = new Parser();
+      assert.strictEqual(parser.evaluate('indexOf("x", "abcdefg")'), -1);
+      assert.strictEqual(parser.evaluate('indexOf("abd", "abcdefg")'), -1);
+    });
+  });
+
+  describe('join(sep, array)', function () {
+    it('should fail if second argument is not an array', function () {
+      var parser = new Parser();
+      assert.throws(function () { parser.evaluate('join("x", "y")'); }, /not an array/);
+    });
+
+    it('should return an empty string on an empty array', function () {
+      var parser = new Parser();
+      assert.strictEqual(parser.evaluate('join("x", [])'), '');
+    });
+
+    it('should work on a single-element array', function () {
+      var parser = new Parser();
+      assert.strictEqual(parser.evaluate('join("x", ["a"])'), 'a');
+      assert.strictEqual(parser.evaluate('join("x", [5])'), '5');
+    });
+
+    it('should work on a multi-element arrays', function () {
+      var parser = new Parser();
+      assert.strictEqual(parser.evaluate('join("x", ["a", "b", "c", 4])'), 'axbxcx4');
+      assert.strictEqual(parser.evaluate('join(", ", [1, 2])'), '1, 2');
+      assert.strictEqual(parser.evaluate('join("", [1, 2, 3])'), '123');
+    });
+  });
+
+  describe('sum(array)', function () {
+    it('should fail if the argument is not an array', function () {
+      var parser = new Parser();
+      assert.throws(function () { parser.evaluate('sum(1)'); }, /not an array/);
+    });
+
+    it('should return zero with an empty array', function () {
+      var parser = new Parser();
+      assert.strictEqual(parser.evaluate('sum([])'), 0);
+    });
+
+    it('should work on a single-element array', function () {
+      var parser = new Parser();
+      assert.strictEqual(parser.evaluate('sum([1])'), 1);
+    });
+
+    it('should work on a multi-element array', function () {
+      var parser = new Parser();
+      assert.strictEqual(parser.evaluate('sum([1, 2])'), 3);
     });
   });
 

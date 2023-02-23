@@ -1,4 +1,4 @@
-import { Token, TEOF, TOP, TFUNCOP, TNUMBER, TSTRING, TPAREN, TCOMMA, TNAME } from './token';
+import { Token, TEOF, TOP, TFUNCOP, TNUMBER, TSTRING, TPAREN, TBRACKET, TCOMMA, TNAME, TSEMICOLON } from './token';
 
 export function TokenStream(parser, expression) {
   this.pos = 0;
@@ -12,6 +12,7 @@ export function TokenStream(parser, expression) {
   this.savedPosition = 0;
   this.savedCurrent = null;
   this.options = parser.options;
+  this.parser = parser;
 }
 
 TokenStream.prototype.newToken = function (type, value, pos) {
@@ -40,7 +41,9 @@ TokenStream.prototype.next = function () {
       this.isOperator() ||
       this.isString() ||
       this.isParen() ||
+      this.isBracket() ||
       this.isComma() ||
+      this.isSemicolon() ||
       this.isNamedOp() ||
       this.isFuncOp() ||
       this.isConst() ||
@@ -82,10 +85,30 @@ TokenStream.prototype.isParen = function () {
   return false;
 };
 
+TokenStream.prototype.isBracket = function () {
+  var c = this.expression.charAt(this.pos);
+  if ((c === '[' || c === ']') && this.isOperatorEnabled('[')) {
+    this.current = this.newToken(TBRACKET, c);
+    this.pos++;
+    return true;
+  }
+  return false;
+};
+
 TokenStream.prototype.isComma = function () {
   var c = this.expression.charAt(this.pos);
   if (c === ',') {
     this.current = this.newToken(TCOMMA, ',');
+    this.pos++;
+    return true;
+  }
+  return false;
+};
+
+TokenStream.prototype.isSemicolon = function () {
+  var c = this.expression.charAt(this.pos);
+  if (c === ';') {
+    this.current = this.newToken(TSEMICOLON, ';');
     this.pos++;
     return true;
   }
@@ -411,7 +434,7 @@ TokenStream.prototype.isOperator = function () {
       this.current = this.newToken(TOP, '==');
       this.pos++;
     } else {
-      return false;
+      this.current = this.newToken(TOP, c);
     }
   } else if (c === '!') {
     if (this.expression.charAt(this.pos + 1) === '=') {
@@ -433,42 +456,8 @@ TokenStream.prototype.isOperator = function () {
   }
 };
 
-var optionNameMap = {
-  '+': 'add',
-  '-': 'subtract',
-  '*': 'multiply',
-  '/': 'divide',
-  '%': 'remainder',
-  '^': 'power',
-  '!': 'factorial',
-  '<': 'comparison',
-  '>': 'comparison',
-  '<=': 'comparison',
-  '>=': 'comparison',
-  '==': 'comparison',
-  '!=': 'comparison',
-  '||': 'concatenate',
-  'and': 'logical',
-  'or': 'logical',
-  'not': 'logical',
-  '?': 'conditional',
-  ':': 'conditional'
-};
-
-function getOptionName(op) {
-  return optionNameMap.hasOwnProperty(op) ? optionNameMap[op] : op;
-}
-
 TokenStream.prototype.isOperatorEnabled = function (op) {
-  var optionName = getOptionName(op);
-  var operators = this.options.operators || {};
-
-  // in is a special case for now because it's disabled by default
-  if (optionName === 'in') {
-    return !!operators['in'];
-  }
-
-  return !(optionName in operators) || !!operators[optionName];
+  return this.parser.isOperatorEnabled(op);
 };
 
 TokenStream.prototype.getCoordinates = function () {

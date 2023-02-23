@@ -1,4 +1,4 @@
-import { Instruction, INUMBER, IOP1, IOP2, IOP3, IVAR, IEXPR, IMEMBER } from './instruction';
+import { Instruction, INUMBER, IOP1, IOP2, IOP3, IVAR, IVARNAME, IEXPR, IMEMBER, IARRAY } from './instruction';
 
 export default function simplify(tokens, unaryOps, binaryOps, ternaryOps, values) {
   var nstack = [];
@@ -8,8 +8,14 @@ export default function simplify(tokens, unaryOps, binaryOps, ternaryOps, values
   for (var i = 0; i < tokens.length; i++) {
     var item = tokens[i];
     var type = item.type;
-    if (type === INUMBER) {
-      nstack.push(item);
+    if (type === INUMBER || type === IVARNAME) {
+      if (Array.isArray(item.value)) {
+        nstack.push.apply(nstack, simplify(item.value.map(function (x) {
+          return new Instruction(INUMBER, x);
+        }).concat(new Instruction(IARRAY, item.value.length)), unaryOps, binaryOps, ternaryOps, values));
+      } else {
+        nstack.push(item);
+      }
     } else if (type === IVAR && values.hasOwnProperty(item.value)) {
       item = new Instruction(INUMBER, values[item.value]);
       nstack.push(item);
@@ -43,7 +49,13 @@ export default function simplify(tokens, unaryOps, binaryOps, ternaryOps, values
     } else if (type === IMEMBER && nstack.length > 0) {
       n1 = nstack.pop();
       nstack.push(new Instruction(INUMBER, n1.value[item.value]));
-    } else {
+    } /* else if (type === IARRAY && nstack.length >= item.value) {
+      var length = item.value;
+      while (length-- > 0) {
+        newexpression.push(nstack.pop());
+      }
+      newexpression.push(new Instruction(IARRAY, item.value));
+    } */ else {
       while (nstack.length > 0) {
         newexpression.push(nstack.shift());
       }

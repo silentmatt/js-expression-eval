@@ -3,7 +3,8 @@ export default {
   output: {
     file: 'dist/bundle.js',
     format: 'umd',
-    name: 'exprEval'
+    name: 'exprEval',
+    exports: 'named'
   },
   plugins: []
 };
