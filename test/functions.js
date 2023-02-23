@@ -102,6 +102,23 @@ describe('Functions', function () {
     });
   });
 
+  describe('percent(n)', function () {
+    it('should return n%', function () {
+      var parser = new Parser();
+      assert.strictEqual(parser.evaluate('percent(0)'), 0);
+      assert.strictEqual(parser.evaluate('percent(1)'), 0.01);
+      assert.strictEqual(parser.evaluate('percent(2)'), 0.02);
+      assert.strictEqual(parser.evaluate('percent(2.5)'), 0.025);
+      assert.strictEqual(parser.evaluate('percent(10)'), 0.1);
+      assert.strictEqual(parser.evaluate('percent(42)'), 0.42);
+      assert.strictEqual(parser.evaluate('percent(55.55)'), 0.5555);
+      assert.strictEqual(parser.evaluate('percent(99)'), 0.99);
+      assert.strictEqual(parser.evaluate('percent(100)'), 1);
+      assert.strictEqual(parser.evaluate('percent(120)'), 1.2);
+      assert.strictEqual(parser.evaluate('percent(210)'), 2.1);
+    });
+  });
+
   describe('min(a, b, ...)', function () {
     it('should return the smallest value', function () {
       var parser = new Parser();

@@ -114,6 +114,10 @@ export function factorial(a) { // a!
   return gamma(a + 1);
 }
 
+export function percent(a) { // a%
+  return a / 100;
+}
+
 function isInteger(value) {
   return isFinite(value) && (value === Math.round(value));
 }

@@ -30,6 +30,7 @@ import {
   trunc,
   random,
   factorial,
+  percent,
   gamma,
   stringOrArrayLength,
   hypot,
@@ -118,6 +119,7 @@ export function Parser(options) {
   this.functions = {
     random: random,
     fac: factorial,
+    percent: percent,
     min: min,
     max: max,
     hypot: Math.hypot || hypot,
