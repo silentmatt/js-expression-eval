@@ -253,6 +253,20 @@ describe('Parser', function () {
         assert.strictEqual(parser.parse('4 • 5').toString(), '(4 * 5)');
       });
 
+      it('should evaluate percentage operator', function () {
+        assert.strictEqual(parser.evaluate('50#'), 0.5);
+        assert.strictEqual(parser.evaluate('50*10#'), 5);
+        assert.strictEqual(parser.evaluate('50/10#'), 500);
+        assert.strictEqual(parser.evaluate('50+10#'), 55);
+        assert.strictEqual(parser.evaluate('50-10#'), 45);
+        assert.strictEqual(parser.evaluate('10#+50'), 50.1);
+        assert.strictEqual(parser.evaluate('10#-50'), -49.9);
+        assert.strictEqual(parser.evaluate('10#*50'), 5);
+        assert.strictEqual(parser.evaluate('10#/50'), 0.002);
+        assert.strictEqual(parser.evaluate('50+(3*4)#'), 56);
+        assert.strictEqual(parser.evaluate('50-(3*4)#'), 44);
+      });
+
       it('should parse variables that start with operators', function () {
         assert.strictEqual(parser.parse('org > 5').toString(), '(org > 5)');
         assert.strictEqual(parser.parse('android * 2').toString(), '(android * 2)');
