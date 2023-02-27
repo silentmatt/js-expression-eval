@@ -1,6 +1,6 @@
 {
   "name": "@oat-sa/expr-eval",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Mathematical expression evaluator",
   "main": "dist/bundle.js",
   "module": "dist/index.mjs",
@@ -8,7 +8,6 @@
   "directories": {
     "test": "test"
   },
-  "dependencies": {},
   "devDependencies": {
     "eslint": "^6.3.0",
     "eslint-config-semistandard": "^15.0.0",
@@ -51,7 +50,9 @@
     "function",
     "parser"
   ],
-  "author": "Matthew Crumley",
+  "author": {
+    "name": "Matthew Crumley"
+  },
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/oat-sa/expr-eval/issues"
