@@ -30,6 +30,7 @@ import {
   trunc,
   random,
   factorial,
+  percent,
   gamma,
   stringOrArrayLength,
   hypot,
@@ -87,6 +88,7 @@ export function Parser(options) {
     not: not,
     length: stringOrArrayLength,
     '!': factorial,
+    '#': percent,
     sign: Math.sign || sign
   };
 
@@ -106,7 +108,7 @@ export function Parser(options) {
     '<=': lessThanEqual,
     and: andOperator,
     or: orOperator,
-    'in': inOperator,
+    in: inOperator,
     '=': setVar,
     '[': arrayIndex
   };
@@ -118,13 +120,14 @@ export function Parser(options) {
   this.functions = {
     random: random,
     fac: factorial,
+    percent: percent,
     min: min,
     max: max,
     hypot: Math.hypot || hypot,
     pyt: Math.hypot || hypot, // backward compat
     pow: Math.pow,
     atan2: Math.atan2,
-    'if': condition,
+    if: condition,
     gamma: gamma,
     roundTo: roundTo,
     map: arrayMap,
@@ -138,8 +141,8 @@ export function Parser(options) {
   this.consts = {
     E: Math.E,
     PI: Math.PI,
-    'true': true,
-    'false': false
+    true: true,
+    false: false
   };
 }
 
@@ -179,6 +182,7 @@ var optionNameMap = {
   '%': 'remainder',
   '^': 'power',
   '!': 'factorial',
+  '#': 'percent',
   '<': 'comparison',
   '>': 'comparison',
   '<=': 'comparison',
@@ -186,9 +190,9 @@ var optionNameMap = {
   '==': 'comparison',
   '!=': 'comparison',
   '||': 'concatenate',
-  'and': 'logical',
-  'or': 'logical',
-  'not': 'logical',
+  and: 'logical',
+  or: 'logical',
+  not: 'logical',
   '?': 'conditional',
   ':': 'conditional',
   '=': 'assignment',
@@ -197,7 +201,7 @@ var optionNameMap = {
 };
 
 function getOptionName(op) {
-  return optionNameMap.hasOwnProperty(op) ? optionNameMap[op] : op;
+  return Object.prototype.hasOwnProperty.call(optionNameMap, op) ? optionNameMap[op] : op;
 }
 
 Parser.prototype.isOperatorEnabled = function (op) {

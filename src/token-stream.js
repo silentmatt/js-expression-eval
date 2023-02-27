@@ -404,7 +404,7 @@ TokenStream.prototype.isOperator = function () {
   var startPos = this.pos;
   var c = this.expression.charAt(this.pos);
 
-  if (c === '+' || c === '-' || c === '*' || c === '/' || c === '%' || c === '^' || c === '?' || c === ':' || c === '.') {
+  if (c === '+' || c === '-' || c === '*' || c === '/' || c === '%' || c === '^' || c === '?' || c === ':' || c === '.' || c === '#') {
     this.current = this.newToken(TOP, c);
   } else if (c === '∙' || c === '•') {
     this.current = this.newToken(TOP, '*');

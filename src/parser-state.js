@@ -263,10 +263,13 @@ ParserState.prototype.parseExponential = function (instr) {
   }
 };
 
+var POSTFIX_OPERATORS = ['!', '#'];
+
 ParserState.prototype.parsePostfixExpression = function (instr) {
   this.parseFunctionOperator(instr);
-  while (this.accept(TOP, '!')) {
-    instr.push(unaryInstruction('!'));
+  while (this.accept(TOP, POSTFIX_OPERATORS)) {
+    var op = this.current;
+    instr.push(unaryInstruction(op.value));
   }
 };
 
