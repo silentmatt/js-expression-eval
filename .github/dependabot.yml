@@ -1,0 +1,10 @@
+version: 2
+updates:
+    # Keep npm dependencies up to date
+    - package-ecosystem: 'npm'
+      directory: '/'
+      schedule:
+          interval: 'weekly'
+      target-branch: 'develop'
+      allow:
+          - dependency-type: 'production'
