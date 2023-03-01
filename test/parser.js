@@ -258,7 +258,9 @@ describe('Parser', function () {
         assert.strictEqual(parser.evaluate('50*10#'), 5);
         assert.strictEqual(parser.evaluate('50/10#'), 500);
         assert.strictEqual(parser.evaluate('50+10#'), 55);
+        assert.strictEqual(parser.evaluate('10+20+10#'), 32);
         assert.strictEqual(parser.evaluate('50-10#'), 45);
+        assert.strictEqual(parser.evaluate('10-20-10#'), -8);
         assert.strictEqual(parser.evaluate('10#+50'), 50.1);
         assert.strictEqual(parser.evaluate('10#-50'), -49.9);
         assert.strictEqual(parser.evaluate('10#*50'), 5);
