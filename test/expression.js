@@ -634,7 +634,7 @@ describe('Expression', function () {
 
     it('2+(x=3;y=4;z=x*y)+5', function () {
       var parser = new Parser();
-      assert.strictEqual(parser.parse('2+(x=3;y=4;z=x*y)+5').toString(), '((2 + ((x = (3));((y = (4));(z = ((x * y)))))) + 5)');
+      assert.strictEqual(parser.parse('2+(x=3;y=4;z=x*y)+5').toString(), '(2 + (((x = (3));((y = (4));(z = ((x * y))))) + 5))');
     });
 
     it('[1, 2, 3]', function () {
@@ -646,7 +646,7 @@ describe('Expression', function () {
     });
 
     it('["a", ["b", ["c"]], true, 1 + 2 + 3]', function () {
-      assert.strictEqual(Parser.parse('["a", ["b", ["c"]], true, 1 + 2 + 3]').toString(), '["a", ["b", ["c"]], true, ((1 + 2) + 3)]');
+      assert.strictEqual(Parser.parse('["a", ["b", ["c"]], true, 1 + 2 + 3]').toString(), '["a", ["b", ["c"]], true, (1 + (2 + 3))]');
     });
 
     it('\'as\' || \'df\'', function () {
