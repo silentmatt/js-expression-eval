@@ -211,7 +211,7 @@ ParserState.prototype.parseAddSub = function (instr) {
   this.parseTerm(instr);
   while (this.accept(TOP, ADD_SUB_OPERATORS)) {
     var op = this.current;
-    this.parseTerm(instr);
+    this.parseAddSub(instr);
     instr.push(binaryInstruction(op.value));
   }
 };
