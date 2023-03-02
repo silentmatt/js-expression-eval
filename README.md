@@ -228,7 +228,8 @@ f(), x.y, a[i]           | Left          | Function call, property access, array
 ^                        | Right         | Exponentiation
 +, -, not, sqrt, etc.    | Right         | Unary prefix operators (see below for the full list)
 \*, /, %                 | Left          | Multiplication, division, remainder
-+, -, \|\|               | Left          | Addition, subtraction, array/list concatenation
+\|\|                     | Left          | array/list concatenation
++, -                     | Left (Right)  | Addition, subtraction (associativity: `1+2+3` => `1+(2+3)`, `1-2-3` => `1+((-2)+(-3))`)
 ==, !=, >=, <=, >, <, in | Left          | Equals, not equals, etc. "in" means "is the left operand included in the right array operand?"
 and                      | Left          | Logical AND
 or                       | Left          | Logical OR
@@ -261,6 +262,7 @@ Operator | Description
 -x       | Negation
 +x       | Unary plus. This converts it's operand to a number, but has no other effect.
 x!       | Factorial (x * (x-1) * (x-2) * … * 2 * 1). gamma(x + 1) for non-integers.
+x#       | Percentage (`10% = 0.1`, `50 + 10% = 55`, `50 * 10% = 5`)
 abs x    | Absolute value (magnitude) of x
 acos x   | Arc cosine of x (in radians)
 acosh x  | Hyperbolic arc cosine of x (in radians)
@@ -301,6 +303,7 @@ Function      | Description
 :------------ | :----------
 random(n)     | Get a random number in the range [0, n). If n is zero, or not provided, it defaults to 1.
 fac(n)        | n! (factorial of n: "n * (n-1) * (n-2) * … * 2 * 1") Deprecated. Use the ! operator instead.
+percent(n)    | Turns a percentage into a value (`percent(10) = 0.1`).
 min(a,b,…)    | Get the smallest (minimum) number in the list.
 max(a,b,…)    | Get the largest (maximum) number in the list.
 hypot(a,b)    | Hypotenuse, i.e. the square root of the sum of squares of its arguments.
@@ -331,6 +334,16 @@ Examples:
     add(a, b) = a + b
     factorial(x) = x < 2 ? 1 : x * factorial(x - 1)
 ```
+
+#### Functions as binary operator
+
+You can turn any function that accepts 2 operands into a binary operator. To do so, you need to prefix the function name by `@` and do not add the parenthesis. The precedence is higher than the normal function call.
+
+Examples:
+
+    // equivalent to nthrt(4, 254)
+    4 @nthrt 254
+
 #### Custom JavaScript functions
 
 If you need additional functions that aren't supported out of the box, you can easily add them in your own code. Instances of the `Parser` class have a property called `functions` that's simply an object with all the functions that are in scope. You can add, replace, or delete any of the properties to customize what's available in the expressions. For example:
