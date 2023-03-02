@@ -209,8 +209,17 @@ var ADD_SUB_OPERATORS = ['+', '-', '||'];
 
 ParserState.prototype.parseAddSub = function (instr) {
   this.parseTerm(instr);
+  this.save();
   while (this.accept(TOP, ADD_SUB_OPERATORS)) {
     var op = this.current;
+    if (op.value === '-') {
+      // Turns the subtraction into an addition of a negative number.
+      // This is needed as the addition is commutative while subtraction is not.
+      // To properly manage the percentage operator, the operation order is reversed,
+      // and the operation actually needs to be commutative.
+      op = Object.assign({}, op, { value: '+' });
+      this.restore();
+    }
     this.parseAddSub(instr);
     instr.push(binaryInstruction(op.value));
   }
