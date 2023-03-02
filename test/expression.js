@@ -175,6 +175,10 @@ describe('Expression', function () {
       assert.strictEqual(Parser.evaluate('2^(-4)'), 1 / 16);
     });
 
+    it('10-6 || sqrt(4)', function () {
+      assert.strictEqual(Parser.evaluate('10-6 || sqrt(4)'), '42');
+    });
+
     it('\'as\' || \'df\'', function () {
       assert.strictEqual(Parser.evaluate('\'as\' || \'df\''), 'asdf');
     });

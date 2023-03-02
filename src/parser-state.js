@@ -197,15 +197,23 @@ ParserState.prototype.parseAndExpression = function (instr) {
 var COMPARISON_OPERATORS = ['==', '!=', '<', '<=', '>=', '>', 'in'];
 
 ParserState.prototype.parseComparison = function (instr) {
-  this.parseAddSub(instr);
+  this.parseConcat(instr);
   while (this.accept(TOP, COMPARISON_OPERATORS)) {
     var op = this.current;
-    this.parseAddSub(instr);
+    this.parseConcat(instr);
     instr.push(binaryInstruction(op.value));
   }
 };
 
-var ADD_SUB_OPERATORS = ['+', '-', '||'];
+ParserState.prototype.parseConcat = function (instr) {
+  this.parseAddSub(instr);
+  while (this.accept(TOP, '||')) {
+    this.parseAddSub(instr);
+    instr.push(binaryInstruction('||'));
+  }
+};
+
+var ADD_SUB_OPERATORS = ['+', '-'];
 
 ParserState.prototype.parseAddSub = function (instr) {
   this.parseTerm(instr);
