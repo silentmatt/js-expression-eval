@@ -79,6 +79,90 @@ describe('Expression', function () {
       assert.strictEqual(Parser.evaluate('10+ +1'), 11);
     });
 
+    it('10-1', function () {
+      assert.strictEqual(Parser.evaluate('10-1'), 9);
+    });
+
+    it('1+2+3', function () {
+      assert.strictEqual(Parser.evaluate('1+2+3'), 6);
+    });
+
+    it('-1-2-3', function () {
+      assert.strictEqual(Parser.evaluate('-1-2-3'), -6);
+    });
+
+    it('1+2-3+4-5', function () {
+      assert.strictEqual(Parser.evaluate('1+2-3+4-5'), -1);
+    });
+
+    it('3+4*5', function () {
+      assert.strictEqual(Parser.evaluate('3+4*5'), 23);
+    });
+
+    it('3*4+5', function () {
+      assert.strictEqual(Parser.evaluate('3*4+5'), 17);
+    });
+
+    it('3-4*5', function () {
+      assert.strictEqual(Parser.evaluate('3-4*5'), -17);
+    });
+
+    it('3*4-5', function () {
+      assert.strictEqual(Parser.evaluate('3*4-5'), 7);
+    });
+
+    it('(3+4)*5', function () {
+      assert.strictEqual(Parser.evaluate('(3+4)*5'), 35);
+    });
+
+    it('3*(4+5)', function () {
+      assert.strictEqual(Parser.evaluate('3*(4+5)'), 27);
+    });
+
+    it('(3-4)*5', function () {
+      assert.strictEqual(Parser.evaluate('(3-4)*5'), -5);
+    });
+
+    it('3*(4-5)', function () {
+      assert.strictEqual(Parser.evaluate('3*(4-5)'), -3);
+    });
+
+    it('50+10#', function () {
+      assert.strictEqual(Parser.evaluate('50+10#'), 55);
+    });
+
+    it('50-10#', function () {
+      assert.strictEqual(Parser.evaluate('50-10#'), 45);
+    });
+
+    it('50+(5*2)#', function () {
+      assert.strictEqual(Parser.evaluate('50+(5*2)#'), 55);
+    });
+
+    it('50-(5*2)#', function () {
+      assert.strictEqual(Parser.evaluate('50-(5*2)#'), 45);
+    });
+
+    it('50*10#', function () {
+      assert.strictEqual(Parser.evaluate('50*10#'), 5);
+    });
+
+    it('50/10#', function () {
+      assert.strictEqual(Parser.evaluate('50/10#'), 500);
+    });
+
+    it('10+20+10#', function () {
+      assert.strictEqual(Parser.evaluate('10+20+10#'), 32);
+    });
+
+    it('10+20-10#', function () {
+      assert.strictEqual(Parser.evaluate('10+20-10#'), 28);
+    });
+
+    it('10-20-10#', function () {
+      assert.strictEqual(Parser.evaluate('10-20-10#'), -8);
+    });
+
     it('10/-2', function () {
       assert.strictEqual(Parser.evaluate('10/-2'), -5);
     });
@@ -535,11 +619,11 @@ describe('Expression', function () {
     });
 
     it('2-3^x', function () {
-      assert.strictEqual(parser.parse('2-3^x').toString(), '(2 - (3 ^ x))');
+      assert.strictEqual(parser.parse('2-3^x').toString(), '(2 + (-(3 ^ x)))');
     });
 
     it('-2-3^x', function () {
-      assert.strictEqual(parser.parse('-2-3^x').toString(), '((-2) - (3 ^ x))');
+      assert.strictEqual(parser.parse('-2-3^x').toString(), '((-2) + (-(3 ^ x)))');
     });
 
     it('-3^x', function () {
@@ -663,11 +747,11 @@ describe('Expression', function () {
     });
 
     it('(x - 1)!', function () {
-      assert.strictEqual(parser.parse('(x - 1)!').toString(), '((x - 1)!)');
+      assert.strictEqual(parser.parse('(x - 1)!').toString(), '((x + (-1))!)');
     });
 
     it('(x - 1)#', function () {
-      assert.strictEqual(parser.parse('(x - 1)#').toString(), '((x - 1)#)');
+      assert.strictEqual(parser.parse('(x - 1)#').toString(), '((x + (-1))#)');
     });
 
     it('a[0]', function () {
