@@ -30,7 +30,9 @@ export default function evaluate(tokens, expr, values) {
       } else if (token === '=') {
         f = expr.binaryOps[token];
         nstack.push(token, f(n1, evaluate(n2, expr, values), values));
-      } else if ((token === '+' || token === '-') && op2.token === '#' && op2.token !== op1.token) {
+      } else if (token === '+' && op2.token === '#' && op2.token !== op1.token) {
+        // If the percentage operator is applied to the right-hand operand of an addition,
+        // we need to take into account the left-hand operand, because the percentage applies to it
         f = expr.binaryOps[token];
         n1 = resolveExpression(n1, values);
         n2 = evaluate([
@@ -70,8 +72,14 @@ export default function evaluate(tokens, expr, values) {
         }
       }
     } else if (type === IOP1) {
-      n1 = nstack.popValue();
+      op1 = nstack.pop();
+      n1 = op1.value;
       f = expr.unaryOps[token];
+      // If the percentage operator was applied to the operand of a negation, we need to forward it through the context.
+      // Otherwise, it will be ignored from the detection made on a possible addition.
+      if (token === '-' && op1.token === '#') {
+        token = '#';
+      }
       nstack.push(token, f(resolveExpression(n1, values)));
     } else if (type === IFUNCOP) {
       n2 = nstack.popValue();
