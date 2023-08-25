@@ -1,6 +1,10 @@
 # Changelog
 
-## [2.1.3](https://github.com/oat-sa/expr-eval/releases/tag/v2.1.2) - 2023-04-27
+## [2.1.4](https://github.com/oat-sa/expr-eval/releases/tag/v2.1.4) - 2023-08-25
+
+- _Fix_ [ADF-1568](https://oat-sa.atlassian.net/browse/ADF-1568) : Vulnerabilities in dependencies [#19](https://github.com/oat-sa/expr-eval/pull/19)
+
+## [2.1.3](https://github.com/oat-sa/expr-eval/releases/tag/v2.1.3) - 2023-04-27
 
 - _Feature_ [ADF-1417](https://oat-sa.atlassian.net/browse/ADF-1417) : Upgrade to Node 18 [#16](https://github.com/oat-sa/expr-eval/pull/16)
 
