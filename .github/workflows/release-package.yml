@@ -1,0 +1,39 @@
+name: Release NPM package
+
+on:
+  pull_request:
+    branches:
+      - develop
+    types: [closed]
+
+jobs:
+  auto-release:
+    if: github.event.pull_request.merged == true
+    name: Automated package release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone the repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 #avoid unrelated history error
+          token: ${{ secrets.SEMVER_GH_TOKEN }} #bypass branch protection rule
+
+      - name: Configure git user
+        #configuring git for runner
+        run: |
+          git config --global user.name "oat-github-bot"
+          git config --global user.email "oat-github-bot@taotesting.com"
+
+      - name: Install and apply the release tool
+        env:
+          GITHUB_TOKEN: ${{ secrets.SEMVER_GH_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.CI_NPM_RELEASE_TOKEN }}
+        run: |
+          # setup the place
+          npm config set //registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}
+          npm i -g @oat-sa/tao-extension-release
+          # install the package
+          npm ci
+          #create tag and release a new version
+          taoRelease npmRelease --no-interactive
