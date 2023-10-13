@@ -1,0 +1,41 @@
+name: Sonarqube_CI
+on:
+
+  push:
+    branches:
+      - master
+      - main
+      - develop
+
+  pull_request: 
+    types: [opened, synchronize, reopened]
+    branches: 
+      - '**'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Sonarqube_CI
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Sonarqube scan
+        uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+      # Job will fail when the Quality Gate is red
+      - name: Sonarqube quality gate check
+        id: sonarqube-quality-gate-check      
+        uses: sonarsource/sonarqube-quality-gate-action@master
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+
+      - name: "Example show SonarQube Quality Gate Status value"
+        run: echo "The Quality Gate status is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}"
