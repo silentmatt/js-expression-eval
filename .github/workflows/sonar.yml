@@ -1,21 +1,20 @@
 name: Sonarqube_CI
 on:
 
+  pull_request:
+    types:
+      - labeled
+
   push:
     branches:
       - master
       - main
-      - develop
-
-  pull_request: 
-    types: [opened, synchronize, reopened]
-    branches: 
-      - '**'
-  workflow_dispatch:
+      - release-*
 
 jobs:
   build:
     name: Sonarqube_CI
+    if: ${{ github.event.label.name == 'sonar_check' || github.event_name == 'push' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -26,11 +25,11 @@ jobs:
         uses: sonarsource/sonarqube-scan-action@master
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          SONAR_HOST_URL: 'https://sonarqube.taotesting.info/sonarqube/'
 
       # Job will fail when the Quality Gate is red
       - name: Sonarqube quality gate check
-        id: sonarqube-quality-gate-check      
+        id: sonarqube-quality-gate-check
         uses: sonarsource/sonarqube-quality-gate-action@master
         timeout-minutes: 5
         env:
