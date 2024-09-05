@@ -11,7 +11,7 @@ jobs:
   code-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           token: ${{ secrets.GH_TOKEN }}
       - run: git fetch --tags --unshallow
@@ -20,7 +20,7 @@ jobs:
         uses: oat-sa/conventional-commit-action@v0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v4
         with:
           node-version: 18.x
           registry-url: https://registry.npmjs.org
@@ -34,7 +34,7 @@ jobs:
           npm run coverage:clover
       - name: Report coverage
         if: always()
-        uses: slavcodev/coverage-monitor-action@v1
+        uses: slavcodev/coverage-monitor-action@1.9.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           coverage_path: coverage/clover.xml
@@ -47,7 +47,7 @@ jobs:
       - name: Annotate Code Linting Results
         if: always()
         continue-on-error: true
-        uses: ataylorme/eslint-annotate-action@1.2.0
+        uses: ataylorme/eslint-annotate-action@2.2.0
         with:
           repo-token: '${{ secrets.GITHUB_TOKEN }}'
           report-json: 'eslint_report.json'
